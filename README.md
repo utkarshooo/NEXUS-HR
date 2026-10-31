@@ -1,16 +1,16 @@
-# ⚡ NexusHR – AI-Enabled Enterprise Workforce Intelligence & HCM Platform
+# ⚡ NexusHR – AI-Enabled Enterprise Workforce Intelligence & 3D Spatial HCM Platform
 
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Three.js 3D](https://img.shields.io/badge/Three.js-WebGL_3D-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Java 21](https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot 3.3](https://img.shields.io/badge/Spring_Boot-3.3+-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Spring AI](https://img.shields.io/badge/Spring_AI-1.0_M3-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)](https://spring.io/projects/spring-ai)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16_+_pgvector-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7.0_Cache-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge)](LICENSE)
 
-> **NexusHR** is a next-generation, production-grade **Human Capital Management (HCM) and Predictive Workforce Intelligence Platform**. Built to eliminate manual administrative friction, NexusHR orchestrates the entire employee lifecycle—from geofenced attendance and batch payroll to **real-time AI flight-risk prediction** and **RAG-powered conversational policy intelligence**.
+> **NexusHR** is a next-generation, production-grade **Human Capital Management (HCM) and Predictive Workforce Intelligence Platform**. Built with an **immersive Three.js 3D Spatial Network** and tactile touch flow, NexusHR orchestrates the entire employee lifecycle—from geofenced attendance and batch payroll to **real-time AI flight-risk prediction** and **RAG-powered conversational policy intelligence**.
 
 ---
 
@@ -53,7 +53,12 @@ npm run build
 
 ## 🚀 Key Architectural Innovations
 
-### 1. 🧠 AI Workforce Intelligence & What-If Retention Simulator
+### 1. 🌌 Three.js 3D Spatial Workforce Constellation & Smooth Touch Inertia
+- **Interactive WebGL 3D Galaxy**: Renders enterprise talent as an orbital 3D spatial network with luminous talent nodes, orbiting data rings, and department clustering.
+- **Buttery Touch & Pointer Physics**: Includes physics-based inertial damping (`touchmove`/`pointermove`), drag-to-spin momentum, and click/tap raycasting with holographic employee HUD badges.
+- **Dynamic 3D Card Tilt (`card-tilt`)**: Every dashboard card dynamically tilts in 3D space (`perspective(1000px) rotateX/Y`) following the user's cursor or finger with specular lighting feedback.
+
+### 2. 🧠 AI Workforce Intelligence & What-If Retention Simulator
 - **Predictive Turnover Scoring**: Continuously analyzes tenure milestones, market salary percentiles, on-call spikes, and sentiment drift to compute 0–100% flight risk probabilities.
 - **Interactive Intervention Sandbox**: People Partners can test intervention levers (e.g., +12% merit increase, hybrid modality, promotion fast-tracking, principal mentorship) and watch risk scores plummet in real time before formal submission.
 

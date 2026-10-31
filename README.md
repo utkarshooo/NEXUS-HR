@@ -1,5 +1,6 @@
 # ⚡ NexusHR – AI-Enabled Enterprise Workforce Intelligence & 3D Spatial HCM Platform
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00C781?style=for-the-badge&logo=google-chrome&logoColor=white)](https://71f72cb085b101.lhr.life)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Three.js 3D](https://img.shields.io/badge/Three.js-WebGL_3D-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -11,6 +12,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge)](LICENSE)
 
 > **NexusHR** is a next-generation, production-grade **Human Capital Management (HCM) and Predictive Workforce Intelligence Platform**. Built with an **immersive Three.js 3D Spatial Network** and tactile touch flow, NexusHR orchestrates the entire employee lifecycle—from geofenced attendance and batch payroll to **real-time AI flight-risk prediction** and **RAG-powered conversational policy intelligence**.
+
+---
+
+## 🌐 Public Live URL
+
+- **Instant Public Link**: **[https://71f72cb085b101.lhr.life](https://71f72cb085b101.lhr.life)** (Active with TLS / HTTPS)
 
 ---
 

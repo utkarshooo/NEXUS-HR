@@ -114,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="p-3.5 rounded-2xl bg-gradient-to-b from-indigo-950/60 to-slate-900 border border-indigo-500/30">
         <div className="flex items-center space-x-2 text-indigo-300">
-          <span className="text-xs font-bold tracking-tight">Antigravity Architecture</span>
+          <span className="text-xs font-bold tracking-tight">Enterprise Architecture</span>
         </div>
         <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
           Zero-dependency standalone preview + clean production TypeScript frontend bundle.

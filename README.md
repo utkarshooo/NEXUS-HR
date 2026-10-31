@@ -216,9 +216,9 @@ nexus-hr-frontend/
 
 ---
 
-## 💡 Built with Google Antigravity
+## 💡 Enterprise Architecture & Engineering
 
-This enterprise frontend was synthesized using **Google Antigravity**, demonstrating autonomous full-stack orchestration, clean architectural separation, and production-ready design standards.
+This platform demonstrates autonomous full-stack orchestration, reactive state management, clean architectural separation, and production-ready enterprise design standards.
 
 ---
 

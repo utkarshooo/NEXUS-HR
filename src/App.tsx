@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { AttritionSimulator } from './components/workforce-ai/AttritionSimulator';
@@ -13,6 +13,19 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('intelligence');
   const [currentUser, setCurrentUser] = useState(NexusHRService.getCurrentUser());
   const [employees, setEmployees] = useState<Employee[]>(NexusHRService.getEmployees());
+  useEffect(() => {
+  const loadEmployees = async () => {
+    try {
+      const data = await NexusHRService.fetchEmployeesFromAPI();
+      setEmployees(data);
+      console.log('Employees loaded:', data.length);
+    } catch (error) {
+      console.error('Failed to load employees:', error);
+    }
+  };
+
+  loadEmployees();
+}, []);
   const [selectedSimEmpId, setSelectedSimEmpId] = useState('emp-004');
   const [payslipEmp, setPayslipEmp] = useState<Employee | null>(null);
   const [chatMessages, setChatMessages] = useState(NexusHRService.getChatHistory());
@@ -35,7 +48,7 @@ export const App: React.FC = () => {
 
   const handleSendMessage = async (query: string) => {
     setIsAiThinking(true);
-    const reply = await NexusHRService.askPolicyCopilot(query);
+    await NexusHRService.askPolicyCopilot(query);
     setChatMessages(NexusHRService.getChatHistory());
     setIsAiThinking(false);
   };

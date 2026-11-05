@@ -24,3 +24,21 @@ scratch/
 *.njsproj
 *.sln
 *.sw?
+# Backend build
+backend/target/
+target/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+application-local.properties
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak

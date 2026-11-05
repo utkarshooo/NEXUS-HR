@@ -4,7 +4,6 @@ import {
   LeaveRequest,
   PayrollEntry,
   OKRGoal,
-  PolicyDocument,
   SystemNotification,
   AIChatMessage,
   WorkMode,
@@ -15,7 +14,6 @@ import {
   INITIAL_LEAVE_REQUESTS,
   INITIAL_PAYROLL,
   INITIAL_OKRS,
-  INITIAL_POLICIES,
   INITIAL_NOTIFICATIONS,
 } from './mockData';
 
@@ -59,7 +57,7 @@ export class NexusHRService {
   // Configuration
   static getConfig(): AppConfig {
     return this.load<AppConfig>(STORAGE_KEYS.CONFIG, {
-      backendMode: 'MOCK',
+      backendMode: 'SPRING_BOOT',
       apiUrl: 'http://localhost:8080/api/v1',
       theme: 'dark',
       autoAiRefresh: true,
@@ -80,12 +78,31 @@ export class NexusHRService {
     this.save(STORAGE_KEYS.CURRENT_USER, user);
     return user;
   }
+// Employees
+static getEmployees(): Employee[] {
+  return this.load<Employee[]>(
+    STORAGE_KEYS.EMPLOYEES,
+    INITIAL_EMPLOYEES
+  );
+}
 
-  // Employees
-  static getEmployees(): Employee[] {
-    return this.load<Employee[]>(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES);
+static async fetchEmployeesFromAPI(): Promise<Employee[]> {
+  const response = await fetch(
+    'http://localhost:8080/api/v1/employees'
+  );
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status}`);
   }
 
+  const result = await response.json();
+
+  if (!result.success || !Array.isArray(result.data)) {
+    throw new Error('Invalid employee API response');
+  }
+
+  return result.data as Employee[];
+}
   static getEmployeeById(id: string): Employee | undefined {
     return this.getEmployees().find((e) => e.id === id);
   }
@@ -176,8 +193,6 @@ export class NexusHRService {
 
   static processBatchPayroll(month: number, year: number): { processedCount: number; totalDisbursed: number } {
     const employees = this.getEmployees();
-    const currentPayroll = this.getPayroll();
-
     let totalDisbursed = 0;
     const newEntries: PayrollEntry[] = [];
 

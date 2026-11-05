@@ -14,7 +14,6 @@ export const Header: React.FC<HeaderProps> = ({
   currentUser,
   onRoleChange,
   onOpenCommandPalette,
-  unreadCount,
 }) => {
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockInTime, setClockInTime] = useState<string | null>(null);

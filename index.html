@@ -93,7 +93,7 @@
 
     /* 3D Glassmorphism & Depth Layers */
     .glass-panel-3d {
-      background: rgba(18, 25, 41, 0.65);
+      background: rgba(18, 25, 41, 0.75);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -103,7 +103,7 @@
     }
 
     .glass-panel-3d:hover {
-      border-color: rgba(99, 102, 241, 0.35);
+      border-color: rgba(99, 102, 241, 0.4);
       box-shadow: 0 20px 45px -5px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(99, 102, 241, 0.25);
     }
 
@@ -118,7 +118,17 @@
       transform: translateZ(24px);
     }
 
-    /* Ambient dynamic glow coordinates */
+    /* Shimmer Skeleton Loader */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.8s infinite;
+    }
+
     #ambient-canvas {
       position: fixed;
       top: 0;
@@ -127,17 +137,12 @@
       height: 100vh;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.75;
+      opacity: 0.65;
     }
 
-    /* Print styling */
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printable-payslip, #printable-payslip * {
-        visibility: visible;
-      }
+      body * { visibility: hidden; }
+      #printable-payslip, #printable-payslip * { visibility: visible; }
       #printable-payslip {
         position: absolute;
         left: 0;
@@ -151,7 +156,6 @@
 </head>
 <body class="bg-[#070B12] text-slate-100 antialiased selection:bg-brand-500 selection:text-white">
   
-  <!-- Interactive Ambient 3D Background Canvas -->
   <canvas id="ambient-canvas"></canvas>
 
   <div id="root" class="relative z-10 min-h-screen flex flex-col"></div>
@@ -171,6 +175,13 @@
             <circle cx="12" cy="12" r="10" />
             <line x1="2" y1="12" x2="22" y2="12" />
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </>
+        ),
+        Database: (
+          <>
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
           </>
         ),
         LayoutDashboard: (
@@ -262,6 +273,22 @@
             <line x1="12" x2="12.01" y1="17" y2="17" />
           </>
         ),
+        RefreshCw: (
+          <>
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </>
+        ),
+        Trash2: (
+          <>
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" x2="10" y1="11" y2="17" />
+            <line x1="14" x2="14" y1="11" y2="17" />
+          </>
+        ),
         X: (
           <>
             <line x1="18" x2="6" y1="6" y2="18" />
@@ -302,22 +329,19 @@
       );
     };
 
-    // --- 3D TILT HOOK FOR NATURAL TOUCH & POINTER DEPTH ---
+    // --- 3D TILT HOOK ---
     const use3DTilt = () => {
       const handlePointerMove = (e) => {
         const card = e.currentTarget;
         const rect = card.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
         const x = clientX - rect.left;
         const y = clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-
-        const rotateX = ((y - centerY) / centerY) * -10; // max 10 deg
+        const rotateX = ((y - centerY) / centerY) * -10;
         const rotateY = ((x - centerX) / centerX) * 10;
-
         card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
       };
 
@@ -334,490 +358,70 @@
       };
     };
 
-    // --- DATA STORE CONSTANTS ---
-    const ROLE_PRESETS = {
-      SUPER_ADMIN: {
-        id: 'emp-001',
-        name: 'Elena Rostova',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256',
-        role: 'SUPER_ADMIN',
-        designation: 'VP of People & Enterprise Systems',
-        department: 'Executive Leadership',
-        employeeCode: 'NEX-0001',
-      },
-      HR_DIRECTOR: {
-        id: 'emp-002',
-        name: 'Marcus Vance',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256',
-        role: 'HR_DIRECTOR',
-        designation: 'Director of People Operations',
-        department: 'Human Resources',
-        employeeCode: 'NEX-0014',
-      },
-      TEAM_LEAD: {
-        id: 'emp-003',
-        name: 'Sophia Chen',
-        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=256',
-        role: 'TEAM_LEAD',
-        designation: 'Principal Engineering Manager',
-        department: 'Core Engineering',
-        employeeCode: 'NEX-0042',
-      },
-      EMPLOYEE: {
-        id: 'emp-004',
-        name: 'Alex Rivera',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
-        role: 'EMPLOYEE',
-        designation: 'Senior Full-Stack Engineer',
-        department: 'Platform Architecture',
-        employeeCode: 'NEX-0189',
-      },
-    };
+    // --- DYNAMIC SVG DONUT CHART ---
+    function DepartmentDonutChart({ data }) {
+      if (!data || data.length === 0) return null;
+      const totalSpend = data.reduce((acc, d) => acc + d.spend, 0);
+      const totalCount = data.reduce((acc, d) => acc + d.count, 0);
 
-    const INITIAL_EMPLOYEES = [
-      {
-        id: 'emp-001',
-        employeeCode: 'NEX-0001',
-        firstName: 'Elena',
-        lastName: 'Rostova',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256',
-        department: 'Executive Leadership',
-        designation: 'VP of People & Enterprise Systems',
-        managerName: 'Board of Directors',
-        workMode: 'HYBRID',
-        location: 'San Francisco, CA (HQ)',
-        salary: { baseAnnual: 245000 },
-        performance: { rating: 4.9 },
-        flightRisk: { score: 12, level: 'LOW', recommendation: 'Maintain strategic executive check-ins.' },
-        skills: ['Strategic Workforce', 'Org Design', 'M&A People', 'Executive Leadership'],
-        coordinates3D: { x: 0, y: 120, z: 0 },
-      },
-      {
-        id: 'emp-002',
-        employeeCode: 'NEX-0014',
-        firstName: 'Marcus',
-        lastName: 'Vance',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256',
-        department: 'Human Resources',
-        designation: 'Director of People Operations',
-        managerName: 'Elena Rostova',
-        workMode: 'IN_OFFICE',
-        location: 'San Francisco, CA (HQ)',
-        salary: { baseAnnual: 175000 },
-        performance: { rating: 4.7 },
-        flightRisk: { score: 24, level: 'LOW', recommendation: 'Lead AI workforce transformation.' },
-        skills: ['People Ops', 'Labor Compliance', 'Talent Mobility', 'Compensation'],
-        coordinates3D: { x: -80, y: 50, z: 60 },
-      },
-      {
-        id: 'emp-003',
-        employeeCode: 'NEX-0042',
-        firstName: 'Sophia',
-        lastName: 'Chen',
-        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=256',
-        department: 'Core Engineering',
-        designation: 'Principal Engineering Manager',
-        managerName: 'Elena Rostova',
-        workMode: 'HYBRID',
-        location: 'Seattle, WA',
-        salary: { baseAnnual: 195000 },
-        performance: { rating: 4.8 },
-        flightRisk: { score: 38, level: 'MEDIUM', recommendation: 'Offload routine tasks; schedule mid-cycle equity refresh.' },
-        skills: ['Distributed Systems', 'Java 21', 'Spring Boot 3', 'Kubernetes'],
-        coordinates3D: { x: 80, y: 40, z: -50 },
-      },
-      {
-        id: 'emp-004',
-        employeeCode: 'NEX-0189',
-        firstName: 'Alex',
-        lastName: 'Rivera',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
-        department: 'Platform Architecture',
-        designation: 'Senior Full-Stack Engineer',
-        managerName: 'Sophia Chen',
-        workMode: 'REMOTE',
-        location: 'Austin, TX',
-        salary: { baseAnnual: 148000 },
-        performance: { rating: 4.6 },
-        flightRisk: { score: 72, level: 'HIGH', recommendation: 'IMMEDIATE RETENTION: Adjust salary +12%, fast-track Lead promotion.' },
-        skills: ['React 19', 'TypeScript', 'PostgreSQL', 'Docker', 'GraphQL'],
-        coordinates3D: { x: 120, y: -40, z: 30 },
-      },
-      {
-        id: 'emp-005',
-        employeeCode: 'NEX-0205',
-        firstName: 'Priya',
-        lastName: 'Sharma',
-        avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=256',
-        department: 'Artificial Intelligence & Data',
-        designation: 'Staff AI Research Scientist',
-        managerName: 'Sophia Chen',
-        workMode: 'HYBRID',
-        location: 'San Francisco, CA',
-        salary: { baseAnnual: 215000 },
-        performance: { rating: 4.95 },
-        flightRisk: { score: 41, level: 'MEDIUM', recommendation: 'Grant conference budget; lead Spring AI integration.' },
-        skills: ['Spring AI', 'Vector DBs (pgvector)', 'LLM Orchestration', 'PyTorch'],
-        coordinates3D: { x: 40, y: -60, z: -80 },
-      },
-      {
-        id: 'emp-006',
-        employeeCode: 'NEX-0220',
-        firstName: 'David',
-        lastName: 'Kim',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256',
-        department: 'Product & UX',
-        designation: 'Lead Product Designer',
-        managerName: 'Elena Rostova',
-        workMode: 'HYBRID',
-        location: 'New York, NY',
-        salary: { baseAnnual: 160000 },
-        performance: { rating: 4.5 },
-        flightRisk: { score: 22, level: 'LOW', recommendation: 'Promote to Design System Custodian.' },
-        skills: ['Design Systems', 'Figma', 'UX Research', 'Micro-interactions'],
-        coordinates3D: { x: -100, y: -30, z: -40 },
-      },
-      {
-        id: 'emp-007',
-        employeeCode: 'NEX-0235',
-        firstName: 'Amara',
-        lastName: 'Okafor',
-        avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=256',
-        department: 'Core Engineering',
-        designation: 'Senior DevOps / SRE Engineer',
-        managerName: 'Sophia Chen',
-        workMode: 'REMOTE',
-        location: 'Chicago, IL',
-        salary: { baseAnnual: 152000 },
-        performance: { rating: 4.7 },
-        flightRisk: { score: 64, level: 'HIGH', recommendation: 'Alleviate on-call rotation load; add secondary escalation.' },
-        skills: ['Kubernetes', 'Terraform', 'Prometheus', 'CI/CD Pipelines'],
-        coordinates3D: { x: 70, y: -70, z: 60 },
-      },
-      {
-        id: 'emp-008',
-        employeeCode: 'NEX-0250',
-        firstName: 'Lucas',
-        lastName: 'Dubois',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=256',
-        department: 'Enterprise Sales',
-        designation: 'Enterprise Account Executive',
-        managerName: 'Elena Rostova',
-        workMode: 'HYBRID',
-        location: 'New York, NY',
-        salary: { baseAnnual: 130000 },
-        performance: { rating: 4.3 },
-        flightRisk: { score: 18, level: 'LOW', recommendation: 'Maintain strategic enterprise account pairing.' },
-        skills: ['B2B Enterprise SaaS', 'Contract Negotiation', 'Executive Sales'],
-        coordinates3D: { x: -60, y: -80, z: 70 },
-      },
-    ];
+      const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+      let cumulativePercent = 0;
 
-    // --- THREE.JS INTERACTIVE 3D SPATIAL WORKFORCE MESH ---
-    function Spatial3DWorkforceMesh({ employees, onSelectEmployee, onClose }) {
-      const mountRef = useRef(null);
-      const [hoveredEmp, setHoveredEmp] = useState(null);
-
-      useEffect(() => {
-        if (!mountRef.current || typeof THREE === 'undefined') return;
-
-        const container = mountRef.current;
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-
-        // Scene, Camera, Renderer
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x070B12, 0.002);
-
-        const camera = new THREE.PerspectiveCamera(55, width / height, 1, 2000);
-        camera.position.set(0, 50, 340);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.appendChild(renderer.domElement);
-
-        // Ambient & Directional Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0x6366f1, 2, 800);
-        pointLight.position.set(0, 100, 150);
-        scene.add(pointLight);
-
-        // Root 3D Mesh Group
-        const meshGroup = new THREE.Group();
-        scene.add(meshGroup);
-
-        // Orbital Wireframe Sphere
-        const sphereGeo = new THREE.SphereGeometry(180, 24, 24);
-        const sphereMat = new THREE.MeshBasicMaterial({
-          color: 0x312e81,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.12,
-        });
-        const wireframeSphere = new THREE.Mesh(sphereGeo, sphereMat);
-        meshGroup.add(wireframeSphere);
-
-        // Orbiting Rings
-        const ringGeo = new THREE.RingGeometry(175, 178, 64);
-        const ringMat = new THREE.MeshBasicMaterial({
-          color: 0x4f46e5,
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.25,
-        });
-        const ring1 = new THREE.Mesh(ringGeo, ringMat);
-        ring1.rotation.x = Math.PI / 2.5;
-        meshGroup.add(ring1);
-
-        // Node Meshes & Links
-        const nodeObjects = [];
-        const nodeGeometry = new THREE.SphereGeometry(7, 24, 24);
-
-        employees.forEach((emp, i) => {
-          let nodeColor = 0x6366f1;
-          if (emp.flightRisk.score > 60) nodeColor = 0xf43f5e; // Rose (High Risk)
-          else if (emp.flightRisk.score > 30) nodeColor = 0xf59e0b; // Amber (Medium)
-          else nodeColor = 0x10b981; // Emerald (Low)
-
-          const nodeMaterial = new THREE.MeshStandardMaterial({
-            color: nodeColor,
-            emissive: nodeColor,
-            emissiveIntensity: 0.6,
-            roughness: 0.3,
-            metalness: 0.8,
-          });
-
-          const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-          const pos = emp.coordinates3D || { x: (i - 4) * 40, y: Math.sin(i) * 50, z: Math.cos(i) * 60 };
-          node.position.set(pos.x, pos.y, pos.z);
-          node.userData = { employee: emp };
-
-          // Glow Halo
-          const haloGeo = new THREE.SphereGeometry(11, 16, 16);
-          const haloMat = new THREE.MeshBasicMaterial({
-            color: nodeColor,
-            transparent: true,
-            opacity: 0.2,
-            wireframe: true,
-          });
-          const halo = new THREE.Mesh(haloGeo, haloMat);
-          node.add(halo);
-
-          meshGroup.add(node);
-          nodeObjects.push(node);
-        });
-
-        // Connection Lines Between Nodes
-        const lineMat = new THREE.LineBasicMaterial({
-          color: 0x818cf8,
-          transparent: true,
-          opacity: 0.28,
-        });
-
-        for (let i = 0; i < nodeObjects.length; i++) {
-          for (let j = i + 1; j < nodeObjects.length; j++) {
-            const dist = nodeObjects[i].position.distanceTo(nodeObjects[j].position);
-            if (dist < 180) {
-              const lineGeo = new THREE.BufferGeometry().setFromPoints([
-                nodeObjects[i].position,
-                nodeObjects[j].position,
-              ]);
-              const line = new THREE.Line(lineGeo, lineMat);
-              meshGroup.add(line);
-            }
-          }
-        }
-
-        // Raycasting for Touch & Mouse Selection
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2(-999, -999);
-
-        // Smooth Touch / Pointer Dragging Inertia Controls
-        let isDragging = false;
-        let prevPointerX = 0;
-        let prevPointerY = 0;
-        let velocityX = 0;
-        let velocityY = 0;
-
-        const onPointerDown = (e) => {
-          isDragging = true;
-          const x = e.touches ? e.touches[0].clientX : e.clientX;
-          const y = e.touches ? e.touches[0].clientY : e.clientY;
-          prevPointerX = x;
-          prevPointerY = y;
-          velocityX = 0;
-          velocityY = 0;
+      const slices = data.map((d, i) => {
+        const percent = totalSpend > 0 ? (d.spend / totalSpend) : 0;
+        const start = cumulativePercent;
+        cumulativePercent += percent;
+        return {
+          ...d,
+          percent,
+          start,
+          color: colors[i % colors.length],
         };
-
-        const onPointerMove = (e) => {
-          const rect = container.getBoundingClientRect();
-          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-          mouse.x = ((clientX - rect.left) / width) * 2 - 1;
-          mouse.y = -((clientY - rect.top) / height) * 2 + 1;
-
-          if (isDragging) {
-            const deltaX = clientX - prevPointerX;
-            const deltaY = clientY - prevPointerY;
-            velocityX = deltaX * 0.005;
-            velocityY = deltaY * 0.005;
-            meshGroup.rotation.y += velocityX;
-            meshGroup.rotation.x += velocityY;
-            prevPointerX = clientX;
-            prevPointerY = clientY;
-          }
-        };
-
-        const onPointerUp = () => {
-          isDragging = false;
-        };
-
-        const onClick = () => {
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(nodeObjects, false);
-          if (intersects.length > 0) {
-            const emp = intersects[0].object.userData.employee;
-            if (emp) onSelectEmployee(emp);
-          }
-        };
-
-        container.addEventListener('mousedown', onPointerDown);
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
-        container.addEventListener('click', onClick);
-
-        container.addEventListener('touchstart', onPointerDown, { passive: true });
-        window.addEventListener('touchmove', onPointerMove, { passive: true });
-        window.addEventListener('touchend', onPointerUp, { passive: true });
-
-        // Animation Loop with Smooth Damping
-        let animationFrameId;
-        const animate = () => {
-          animationFrameId = requestAnimationFrame(animate);
-
-          // Apply inertial velocity damping
-          if (!isDragging) {
-            velocityX *= 0.94;
-            velocityY *= 0.94;
-            meshGroup.rotation.y += velocityX + 0.0018; // ambient spin
-            meshGroup.rotation.x += velocityY;
-          }
-
-          ring1.rotation.z += 0.004;
-
-          // Check Hover Raycast
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(nodeObjects, false);
-          if (intersects.length > 0) {
-            const emp = intersects[0].object.userData.employee;
-            setHoveredEmp(emp);
-            container.style.cursor = 'pointer';
-          } else {
-            setHoveredEmp(null);
-            container.style.cursor = 'grab';
-          }
-
-          renderer.render(scene, camera);
-        };
-        animate();
-
-        // Resize Listener
-        const handleResize = () => {
-          if (!container) return;
-          const w = container.clientWidth;
-          const h = container.clientHeight;
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-          renderer.setSize(w, h);
-        };
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-          cancelAnimationFrame(animationFrameId);
-          window.removeEventListener('resize', handleResize);
-          container.removeEventListener('mousedown', onPointerDown);
-          window.removeEventListener('mousemove', onPointerMove);
-          window.removeEventListener('mouseup', onPointerUp);
-          container.removeEventListener('click', onClick);
-          container.removeEventListener('touchstart', onPointerDown);
-          window.removeEventListener('touchmove', onPointerMove);
-          window.removeEventListener('touchend', onPointerUp);
-          if (container.contains(renderer.domElement)) {
-            container.removeChild(renderer.domElement);
-          }
-        };
-      }, [employees]);
+      });
 
       return (
-        <div className="fixed inset-0 z-50 bg-[#070B12]/95 backdrop-blur-2xl flex flex-col p-4 sm:p-6 animate-in fade-in duration-300">
-          {/* 3D Viewport Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800 z-10">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-glow-brand">
-                <Icon name="Globe3D" size={22} className="text-white" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <h2 className="text-lg font-black text-white">3D Spatial Workforce Constellation</h2>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    WebGL 60FPS
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400">Drag/Swipe to spin in 3D space. Tap any glowing talent node to inspect.</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <div className="hidden md:flex items-center space-x-3 text-xs bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 font-mono">
-                <span className="flex items-center space-x-1.5 text-emerald-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span>Low Risk</span>
-                </span>
-                <span className="flex items-center space-x-1.5 text-amber-400">
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                  <span>Medium</span>
-                </span>
-                <span className="flex items-center space-x-1.5 text-rose-400">
-                  <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                  <span>Flight Risk</span>
-                </span>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
-              >
-                <Icon name="X" size={18} />
-              </button>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="relative w-44 h-44 shrink-0 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+              {slices.map((s, idx) => {
+                const strokeDasharray = `${s.percent * 251.2} 251.2`;
+                const strokeDashoffset = `-${s.start * 251.2}`;
+                return (
+                  <circle
+                    key={idx}
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="transparent"
+                    stroke={s.color}
+                    strokeWidth="12"
+                    strokeDasharray={strokeDasharray}
+                    strokeDashoffset={strokeDashoffset}
+                    className="transition-all duration-500 hover:opacity-80"
+                  />
+                );
+              })}
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center pointer-events-none text-center">
+              <span className="text-[10px] text-slate-400 font-mono uppercase">Total Nodes</span>
+              <span className="text-xl font-black text-white">{totalCount}</span>
+              <span className="text-[10px] text-emerald-400 font-bold">${Math.round(totalSpend / 1000)}k/yr</span>
             </div>
           </div>
 
-          {/* 3D Canvas Container */}
-          <div ref={mountRef} className="flex-1 w-full h-full relative overflow-hidden rounded-2xl touch-none">
-            {/* Holographic Hover Tooltip */}
-            {hoveredEmp && (
-              <div className="absolute top-6 left-6 pointer-events-none glass-panel-3d p-4 rounded-2xl shadow-2xl border border-brand-500/50 animate-in fade-in zoom-in-95">
-                <div className="flex items-center space-x-3">
-                  <img src={hoveredEmp.avatar} className="w-10 h-10 rounded-xl object-cover border border-brand-400" />
-                  <div>
-                    <p className="font-bold text-sm text-white">{hoveredEmp.firstName} {hoveredEmp.lastName}</p>
-                    <p className="text-[11px] text-brand-300">{hoveredEmp.designation}</p>
-                    <span className={`text-[10px] font-bold ${hoveredEmp.flightRisk.score > 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                      Flight Risk: {hoveredEmp.flightRisk.score}% ({hoveredEmp.flightRisk.level})
-                    </span>
-                  </div>
+          <div className="flex-1 space-y-2 text-xs w-full">
+            {slices.map((s, idx) => (
+              <div key={idx} className="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+                  <span className="font-semibold text-slate-200 truncate">{s.department}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-right font-mono">
+                  <span className="text-slate-400">{s.count} members</span>
+                  <span className="font-bold text-slate-200">{Math.round(s.percent * 100)}%</span>
                 </div>
               </div>
-            )}
-
-            {/* Quick 3D Interaction Hints */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700/80 text-[11px] text-slate-300 font-medium shadow-xl flex items-center space-x-2">
-              <Icon name="Sparkles" size={14} className="text-cyan-400" />
-              <span>Fluid Touch & Pointer Inertia Active • Tap any node to open employee profile</span>
-            </div>
+            ))}
           </div>
         </div>
       );
@@ -827,93 +431,157 @@
     function App() {
       const tiltProps = use3DTilt();
 
-      // Global State
+      // State
       const [activeTab, setActiveTab] = useState('intelligence');
-      const [currentUser, setCurrentUser] = useState(ROLE_PRESETS.SUPER_ADMIN);
-      const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
-      const [is3DModalOpen, setIs3DModalOpen] = useState(false);
+      const [dataSourceFilter, setDataSourceFilter] = useState('all'); // 'all' | 'real' | 'demo'
+      const [employees, setEmployees] = useState([]);
+      const [meta, setMeta] = useState({ total: 0, realVerifiedCount: 0, demoCount: 0 });
+      const [analyticsStats, setAnalyticsStats] = useState(null);
+      const [apiHealth, setApiHealth] = useState(null);
+      const [isLoading, setIsLoading] = useState(true);
+      const [apiError, setApiError] = useState(null);
+
+      // Filters & Search
+      const [searchQuery, setSearchQuery] = useState('');
+      const [deptFilter, setDeptFilter] = useState('ALL');
+      const [riskFilter, setRiskFilter] = useState('ALL');
+      const [sortBy, setSortBy] = useState('default');
 
       // Modals
       const [selectedEmployee, setSelectedEmployee] = useState(null);
       const [payslipEmployee, setPayslipEmployee] = useState(null);
-      const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-      const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
+      const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
+      const [isApiHealthModalOpen, setIsApiHealthModalOpen] = useState(false);
+      const [addFormErrors, setAddFormErrors] = useState([]);
 
-      // What-If Simulator
-      const [simEmpId, setSimEmpId] = useState('emp-004');
+      // Simulator State
+      const [simEmpId, setSimEmpId] = useState('');
       const [simHike, setSimHike] = useState(12);
       const [simMode, setSimMode] = useState('HYBRID');
       const [simPromotion, setSimPromotion] = useState(true);
       const [simMentorship, setSimMentorship] = useState(true);
-      const [simResult, setSimResult] = useState(null);
 
-      // AI Chat
-      const [chatMessages, setChatMessages] = useState([
-        {
-          id: '1',
-          sender: 'assistant',
-          time: 'Just now',
-          text: 'Hello! I am **Nexus Copilot**, your enterprise HR intelligence assistant powered by **Spring AI**. Ask me anything regarding employee benefits, 16-week parental leave, 4-year equity vesting, or flight risk mitigation!',
-          chips: ['What is our parental leave policy?', 'Explain equity vesting schedule', 'How are health insurance premiums covered?'],
-        }
-      ]);
-      const [chatInput, setChatInput] = useState('');
-      const [isAiThinking, setIsAiThinking] = useState(false);
-
-      // Toast alert
+      // Toast Alert
       const [toastMessage, setToastMessage] = useState(null);
       const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3500);
       };
 
-      // Recalculate Simulator
-      const activeSimEmp = useMemo(() => {
-        return employees.find((e) => e.id === simEmpId) || employees[3];
-      }, [employees, simEmpId]);
+      // Fetch Real Data from REST API
+      const loadDataFromApi = async () => {
+        setIsLoading(true);
+        setApiError(null);
+        try {
+          // 1. Fetch Health
+          const healthRes = await fetch('/api/v1/health');
+          if (healthRes.ok) {
+            const hData = await healthRes.json();
+            setApiHealth(hData);
+          }
+
+          // 2. Fetch Employees
+          const empRes = await fetch(`/api/v1/employees?source=${dataSourceFilter}&search=${encodeURIComponent(searchQuery)}&department=${encodeURIComponent(deptFilter)}&sort=${sortBy}`);
+          if (!empRes.ok) throw new Error(`API Error: ${empRes.statusText}`);
+          const empData = await empRes.json();
+          setEmployees(empData.data || []);
+          setMeta(empData.meta || { total: 0, realVerifiedCount: 0, demoCount: 0 });
+          if (empData.data && empData.data.length > 0 && !simEmpId) {
+            setSimEmpId(empData.data[0].id);
+          }
+
+          // 3. Fetch Analytics Stats
+          const statsRes = await fetch('/api/v1/analytics/stats');
+          if (statsRes.ok) {
+            const sData = await statsRes.json();
+            setAnalyticsStats(sData.stats);
+          }
+        } catch (err) {
+          console.error("API Fetch Error:", err);
+          setApiError(err.message || "Failed to connect to backend REST API.");
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
       useEffect(() => {
-        if (!activeSimEmp) return;
+        loadDataFromApi();
+      }, [dataSourceFilter, deptFilter, sortBy]);
+
+      // Debounced search
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          loadDataFromApi();
+        }, 250);
+        return () => clearTimeout(timer);
+      }, [searchQuery]);
+
+      // Handle Adding a REAL employee via API (POST /api/v1/employees)
+      const handleCreateRealEmployee = async (e) => {
+        e.preventDefault();
+        setAddFormErrors([]);
+        const fd = new FormData(e.target);
+
+        const payload = {
+          firstName: fd.get('firstName'),
+          lastName: fd.get('lastName'),
+          email: fd.get('email'),
+          department: fd.get('department'),
+          designation: fd.get('designation'),
+          salary: Number(fd.get('salary')),
+          workMode: fd.get('workMode'),
+          location: fd.get('location'),
+          skills: fd.get('skills'),
+        };
+
+        try {
+          const res = await fetch('/api/v1/employees', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const result = await res.json();
+          if (!res.ok) {
+            setAddFormErrors(result.details || [result.error || 'Failed to create employee.']);
+            return;
+          }
+
+          showToast(`🟢 REAL EMPLOYEE CREATED: ${result.data.firstName} ${result.data.lastName} (${result.data.employeeCode}) stored in SQLite!`);
+          setIsAddEmployeeOpen(false);
+          loadDataFromApi();
+        } catch (err) {
+          setAddFormErrors([err.message || 'Network connection failed.']);
+        }
+      };
+
+      // Handle Deleting Real Employee (DELETE /api/v1/employees/<id>)
+      const handleDeleteEmployee = async (empId, empName) => {
+        if (!confirm(`Are you sure you want to permanently delete ${empName} from the database?`)) return;
+        try {
+          const res = await fetch(`/api/v1/employees/${empId}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('Delete failed');
+          showToast(`Employee ${empName} deleted from live database.`);
+          loadDataFromApi();
+        } catch (err) {
+          showToast(`Error deleting employee: ${err.message}`);
+        }
+      };
+
+      // Active target for simulator
+      const activeSimEmp = useMemo(() => {
+        return employees.find((e) => e.id === simEmpId) || employees[0];
+      }, [employees, simEmpId]);
+
+      const simulatedOutcome = useMemo(() => {
+        if (!activeSimEmp) return { original: 50, simulated: 25, drop: 25 };
         const base = activeSimEmp.flightRisk.score;
         let delta = simHike * 2.1 + (simPromotion ? 16 : 0) + (simMentorship ? 8 : 0);
         if (simMode === 'HYBRID' || simMode === 'REMOTE') delta += 10;
         const finalScore = Math.max(8, Math.round(base - delta));
-        let level = 'LOW';
-        if (finalScore > 70) level = 'CRITICAL';
-        else if (finalScore > 50) level = 'HIGH';
-        else if (finalScore > 25) level = 'MEDIUM';
-
-        setSimResult({
-          original: base,
-          newScore: finalScore,
-          newLevel: level,
-          reduction: base - finalScore,
-        });
+        return { original: base, simulated: finalScore, drop: base - finalScore };
       }, [activeSimEmp, simHike, simMode, simPromotion, simMentorship]);
 
-      const handleApplyRetentionPlan = () => {
-        if (!simResult || !activeSimEmp) return;
-        setEmployees((prev) =>
-          prev.map((e) => {
-            if (e.id === activeSimEmp.id) {
-              return {
-                ...e,
-                workMode: simMode,
-                flightRisk: {
-                  ...e.flightRisk,
-                  score: simResult.newScore,
-                  level: simResult.newLevel,
-                  recommendation: `Intervention applied: +${simHike}% salary, ${simMode} mode, mentorship active.`,
-                },
-              };
-            }
-            return e;
-          })
-        );
-        showToast(`Retention package dispatched for ${activeSimEmp.firstName}! Risk dropped to ${simResult.newScore}%.`);
-      };
-
-      // Ambient 3D Canvas Background Initialization
+      // Ambient Canvas Background
       useEffect(() => {
         const canvas = document.getElementById('ambient-canvas');
         if (!canvas) return;
@@ -921,22 +589,20 @@
         let width = (canvas.width = window.innerWidth);
         let height = (canvas.height = window.innerHeight);
 
-        const particles = Array.from({ length: 65 }, () => ({
+        const particles = Array.from({ length: 50 }, () => ({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
           radius: Math.random() * 2 + 1,
           color: Math.random() > 0.5 ? 'rgba(99, 102, 241,' : 'rgba(6, 182, 212,',
-          alpha: Math.random() * 0.5 + 0.2,
+          alpha: Math.random() * 0.4 + 0.15,
         }));
 
         let animId;
         const render = () => {
           animId = requestAnimationFrame(render);
           ctx.clearRect(0, 0, width, height);
-
-          // Update & draw particles
           for (let i = 0; i < particles.length; i++) {
             const p = particles[i];
             p.x += p.vx;
@@ -951,15 +617,14 @@
             ctx.fillStyle = `${p.color} ${p.alpha})`;
             ctx.fill();
 
-            // Connect neighboring particles with silky lines
             for (let j = i + 1; j < particles.length; j++) {
               const p2 = particles[j];
               const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-              if (dist < 120) {
+              if (dist < 110) {
                 ctx.beginPath();
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p2.x, p2.y);
-                ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 120) * 0.15})`;
+                ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 110) * 0.12})`;
                 ctx.lineWidth = 1;
                 ctx.stroke();
               }
@@ -979,58 +644,10 @@
         };
       }, []);
 
-      // Handle AI Chat
-      const handleSendChat = (queryText) => {
-        const text = queryText || chatInput;
-        if (!text.trim()) return;
-
-        setChatMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            sender: 'user',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            text: text.trim(),
-          },
-        ]);
-        setChatInput('');
-        setIsAiThinking(true);
-
-        setTimeout(() => {
-          let responseText = '';
-          let citations = [];
-          const lower = text.toLowerCase();
-
-          if (lower.includes('parental') || lower.includes('maternity') || lower.includes('paternity')) {
-            responseText = `Under NexusHR's **Parental & Family Bonding Policy (v4.2)**:\n- **16 weeks of 100% fully paid leave** for all regular full-time employees.\n- Available continuously or split across two phases within 12 months.\n- Full healthcare and RSU vesting schedules remain 100% active.`;
-            citations = ['Parental Leave Handbook v4.2 #Article-4.3'];
-          } else if (lower.includes('equity') || lower.includes('stock') || lower.includes('vest')) {
-            responseText = `Under our **Equity Incentive Plan (2024-2028)**:\n- 4-year standard vesting schedule with a **1-year cliff (25%)**.\n- Monthly incremental vesting of **1/48th** thereafter.\n- Annual performance refresh grants reviewed each Q1 cycle.`;
-            citations = ['Total Rewards & Equity Guide #Sec-2.1'];
-          } else {
-            responseText = `Referencing internal vector database for **"${text}"**:\n\nNexusHR fosters high-performance autonomous work cultures with transparent meritocracy, competitive base compensation, and comprehensive wellness standards.\n\nWould you like me to connect you with People Operations or simulate a retention package?`;
-            citations = ['NexusHR Global Employee Handbook'];
-          }
-
-          setChatMessages((prev) => [
-            ...prev,
-            {
-              id: (Date.now() + 1).toString(),
-              sender: 'assistant',
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              text: responseText,
-              citations: citations,
-              chips: ['Simulate flight risk intervention', 'Submit time-off request'],
-            },
-          ]);
-          setIsAiThinking(false);
-        }, 750);
-      };
-
       return (
         <div className="min-h-screen flex flex-col font-sans">
           
-          {/* TOAST ALERT */}
+          {/* TOAST NOTIFICATION */}
           {toastMessage && (
             <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 bg-brand-600 text-white px-5 py-3.5 rounded-2xl shadow-glow-brand border border-brand-400/40 animate-bounce">
               <Icon name="CheckCircle2" size={20} className="text-emerald-300" />
@@ -1038,20 +655,8 @@
             </div>
           )}
 
-          {/* 3D SPATIAL WORKFORCE MODAL */}
-          {is3DModalOpen && (
-            <Spatial3DWorkforceMesh
-              employees={employees}
-              onSelectEmployee={(emp) => {
-                setSelectedEmployee(emp);
-                setIs3DModalOpen(false);
-              }}
-              onClose={() => setIs3DModalOpen(false)}
-            />
-          )}
-
           {/* TOP APP HEADER */}
-          <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#070B12]/80 backdrop-blur-2xl px-4 lg:px-8 py-3.5 flex items-center justify-between">
+          <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#070B12]/85 backdrop-blur-2xl px-4 lg:px-8 py-3.5 flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('intelligence')}>
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-glow-brand">
@@ -1060,45 +665,72 @@
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">NexusHR</span>
-                    <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">v2.4 Spatial</span>
+                    <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">v2.4 Enterprise</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium">Workforce Intelligence & 3D HCM</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Workforce Intelligence & Real REST API</p>
                 </div>
+              </div>
+
+              {/* LIVE BACKEND API STATUS PILL */}
+              <div
+                onClick={() => setIsApiHealthModalOpen(true)}
+                className="hidden lg:flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-full cursor-pointer hover:border-slate-700 transition"
+              >
+                <span className={`w-2.5 h-2.5 rounded-full ${apiHealth?.status === 'UP' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`}></span>
+                <span className="text-xs font-mono font-medium text-slate-300">
+                  {apiHealth?.status === 'UP' ? 'SQLite REST API: Connected' : 'API: Reconnecting...'}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+                  {meta.realVerifiedCount} Real DB
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">
+                  {meta.demoCount} Demo
+                </span>
               </div>
             </div>
 
-            {/* Quick Actions & 3D Spatial Mesh Trigger */}
+            {/* QUICK ACTIONS & ONBOARD REAL EMPLOYEE */}
             <div className="flex items-center space-x-3">
-              {/* 3D Spatial Network Launcher Button */}
               <button
-                onClick={() => setIs3DModalOpen(true)}
-                className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-brand-600 hover:opacity-95 text-white font-bold text-xs shadow-glow-cyan border border-cyan-400/40 transition"
+                onClick={() => setIsAddEmployeeOpen(true)}
+                className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-bold text-xs shadow-glow-emerald border border-emerald-400/40 transition"
               >
-                <Icon name="Globe3D" size={16} />
-                <span className="hidden sm:inline">Launch 3D Constellation</span>
-                <span className="sm:hidden">3D</span>
+                <span>+ Onboard Real Employee</span>
               </button>
-
-              {/* Role Switcher */}
-              <div className="relative flex items-center bg-slate-900/90 border border-slate-800 rounded-xl p-1">
-                <img src={currentUser.avatar} className="w-8 h-8 rounded-lg object-cover border border-brand-500/40" />
-                <div className="ml-2 mr-3 text-left hidden sm:block">
-                  <p className="text-xs font-bold text-slate-200 leading-tight">{currentUser.name}</p>
-                  <p className="text-[10px] text-brand-300 font-mono uppercase">{currentUser.role.replace('_', ' ')}</p>
-                </div>
-                <select
-                  value={currentUser.role}
-                  onChange={(e) => setCurrentUser(ROLE_PRESETS[e.target.value])}
-                  className="bg-transparent text-xs text-slate-300 py-1 pr-2 outline-none cursor-pointer font-medium"
-                >
-                  <option value="SUPER_ADMIN" className="bg-slate-900">👑 Super Admin</option>
-                  <option value="HR_DIRECTOR" className="bg-slate-900">👔 HR Director</option>
-                  <option value="TEAM_LEAD" className="bg-slate-900">💻 Team Lead</option>
-                  <option value="EMPLOYEE" className="bg-slate-900">👤 Employee</option>
-                </select>
-              </div>
             </div>
           </header>
+
+          {/* DATA SOURCE PROVENANCE SELECTOR & TRANSPARENCY BAR */}
+          <section className="bg-[#0B101D] border-b border-slate-800/80 px-4 lg:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center space-x-2">
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px]">Data Provenance:</span>
+              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1">
+                <button
+                  onClick={() => setDataSourceFilter('all')}
+                  className={`px-3 py-1 rounded-lg font-bold transition ${dataSourceFilter === 'all' ? 'bg-brand-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  All ({meta.totalInDB || employees.length})
+                </button>
+                <button
+                  onClick={() => setDataSourceFilter('real')}
+                  className={`px-3 py-1 rounded-lg font-bold flex items-center space-x-1.5 transition ${dataSourceFilter === 'real' ? 'bg-emerald-600 text-white shadow-glow-emerald' : 'text-emerald-400 hover:text-emerald-300'}`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span>Real API Records Only ({meta.realVerifiedCount})</span>
+                </button>
+                <button
+                  onClick={() => setDataSourceFilter('demo')}
+                  className={`px-3 py-1 rounded-lg font-bold transition ${dataSourceFilter === 'demo' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Demo Benchmark ({meta.demoCount})
+                </button>
+              </div>
+            </div>
+
+            <p className="text-slate-400 text-[11px] leading-relaxed">
+              <span className="text-emerald-400 font-bold">Guaranteed Transparency:</span> Real database records persist to SQLite via live REST API. Demo benchmark records are isolated for comparative calibration.
+            </p>
+          </section>
 
           {/* MAIN WORKSPACE */}
           <div className="flex-1 flex overflow-hidden">
@@ -1119,7 +751,6 @@
                     >
                       <Icon name="Brain" size={17} />
                       <span className="flex-1 text-left">Workforce AI Hub</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/20 text-white font-mono">AI</span>
                     </button>
 
                     <button
@@ -1131,7 +762,7 @@
                       }`}
                     >
                       <Icon name="LayoutDashboard" size={17} />
-                      <span className="flex-1 text-left">Executive Overview</span>
+                      <span className="flex-1 text-left">Executive Analytics</span>
                     </button>
                   </nav>
                 </div>
@@ -1148,8 +779,8 @@
                       }`}
                     >
                       <Icon name="Users" size={17} />
-                      <span className="flex-1 text-left">Directory & 3D Nodes</span>
-                      <span className="text-[10px] text-slate-500 font-mono">{employees.length}</span>
+                      <span className="flex-1 text-left">Directory & Database</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{employees.length}</span>
                     </button>
 
                     <button
@@ -1173,134 +804,193 @@
                       }`}
                     >
                       <Icon name="Award" size={17} />
-                      <span className="flex-1 text-left">Performance & 9-Box</span>
+                      <span className="flex-1 text-left">Performance 9-Box</span>
                     </button>
                   </nav>
                 </div>
               </div>
 
-              {/* 3D Spatial Banner */}
+              {/* DATABASE TELEMETRY CARD */}
               <div
-                onClick={() => setIs3DModalOpen(true)}
-                className="p-3.5 rounded-2xl bg-gradient-to-b from-brand-950/80 to-slate-900 border border-brand-500/40 cursor-pointer hover:border-brand-400 transition shadow-glow-brand"
+                onClick={() => setIsApiHealthModalOpen(true)}
+                className="p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 to-[#0e1627] border border-slate-800 hover:border-slate-700 transition cursor-pointer"
               >
-                <div className="flex items-center space-x-2 text-cyan-300">
-                  <Icon name="Globe3D" size={16} />
-                  <span className="text-xs font-bold tracking-tight">3D Spatial Network</span>
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <div className="flex items-center space-x-2 text-slate-200">
+                    <Icon name="Database" size={15} className="text-brand-400" />
+                    <span>Database Engine</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-mono">SQLite 3</span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                  Interactive WebGL constellation of workforce nodes with real-time orbit controls.
-                </p>
-                <div className="mt-2 text-[10px] font-bold text-brand-400 uppercase tracking-wider flex items-center space-x-1">
-                  <span>Enter 3D Space</span>
-                  <Icon name="ChevronRight" size={12} />
+                <div className="mt-2 text-[11px] text-slate-400 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Verified Real:</span>
+                    <span className="font-mono text-emerald-400 font-bold">{meta.realVerifiedCount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Benchmark Demo:</span>
+                    <span className="font-mono text-slate-300">{meta.demoCount}</span>
+                  </div>
                 </div>
               </div>
             </aside>
 
-            {/* TAB CONTENT WITH 3D CARD TILT & TOUCH MOMENTUM */}
+            {/* TAB CONTENT */}
             <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
               
+              {/* ERROR BANNER IF API DROPS */}
+              {apiError && (
+                <div className="p-4 rounded-2xl bg-rose-950/60 border border-rose-800/80 flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Icon name="AlertTriangle" size={20} className="text-rose-400" />
+                    <div>
+                      <p className="text-xs font-bold text-white">API Connection Error</p>
+                      <p className="text-[11px] text-rose-300">{apiError}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={loadDataFromApi}
+                    className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
+                  >
+                    Retry Sync
+                  </button>
+                </div>
+              )}
+
               {/* TAB 1: WORKFORCE AI HUB */}
               {activeTab === 'intelligence' && (
                 <div className="space-y-8 animate-in fade-in duration-300">
                   
-                  {/* Hero Banner with 3D Depth */}
-                  <div
-                    {...tiltProps}
-                    className="card-tilt relative overflow-hidden rounded-3xl p-6 lg:p-8 bg-gradient-to-r from-brand-950/90 via-slate-900/90 to-[#121A2F]/90 border border-brand-500/30 shadow-2xl backdrop-blur-xl"
-                  >
-                    <div className="card-tilt-content relative z-10 max-w-3xl">
-                      <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30 text-xs font-semibold mb-3">
-                        <Icon name="Sparkles" size={14} />
-                        <span>Autonomous Predictive Workforce Engine</span>
+                  {/* SUMMARY STAT CARDS (CALCULATED FROM LIVE DB) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div {...tiltProps} className="card-tilt glass-panel-3d p-5 rounded-2xl">
+                      <div className="card-tilt-content">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-slate-400">Total Workforce Nodes</span>
+                          <Icon name="Users" size={18} className="text-brand-400" />
+                        </div>
+                        <p className="text-2xl font-black text-white mt-2">
+                          {analyticsStats ? analyticsStats.totalEmployees : employees.length} Personnel
+                        </p>
+                        <div className="flex items-center space-x-2 text-[10px] mt-2 font-mono">
+                          <span className="text-emerald-400 font-bold">🟢 {meta.realVerifiedCount} Live DB</span>
+                          <span className="text-slate-500">•</span>
+                          <span className="text-slate-400">🧪 {meta.demoCount} Demo</span>
+                        </div>
                       </div>
-                      <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                        AI-Enabled Attrition Prediction & 3D Spatial Intelligence
-                      </h1>
-                      <p className="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
-                        Multidimensional telemetry monitoring tenure milestones, market salary percentiles, on-call spikes, and sentiment drift. Touch and drag cards with smooth 3D perspective feedback.
-                      </p>
+                    </div>
+
+                    <div {...tiltProps} className="card-tilt glass-panel-3d p-5 rounded-2xl">
+                      <div className="card-tilt-content">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-slate-400">Annual Payroll Burn</span>
+                          <Icon name="DollarSign" size={18} className="text-emerald-400" />
+                        </div>
+                        <p className="text-2xl font-black text-emerald-400 mt-2 font-mono">
+                          ${analyticsStats ? (analyticsStats.annualPayroll / 1000).toLocaleString() : '0'}k
+                        </p>
+                        <span className="text-[10px] text-slate-400 mt-2 block">
+                          Avg Base: ${analyticsStats ? analyticsStats.averageSalary.toLocaleString() : '0'}/yr
+                        </span>
+                      </div>
+                    </div>
+
+                    <div {...tiltProps} className="card-tilt glass-panel-3d p-5 rounded-2xl">
+                      <div className="card-tilt-content">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-slate-400">Avg Retention Confidence</span>
+                          <Icon name="ShieldCheck" size={18} className="text-cyan-400" />
+                        </div>
+                        <p className="text-2xl font-black text-white mt-2">
+                          {analyticsStats ? (100 - analyticsStats.averageFlightRisk) : 80}%
+                        </p>
+                        <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full"
+                            style={{ width: `${analyticsStats ? (100 - analyticsStats.averageFlightRisk) : 80}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div {...tiltProps} className="card-tilt glass-panel-3d p-5 rounded-2xl">
+                      <div className="card-tilt-content">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-slate-400">Critical Flight Risk</span>
+                          <Icon name="AlertTriangle" size={18} className="text-rose-400" />
+                        </div>
+                        <p className="text-2xl font-black text-rose-400 mt-2">
+                          {analyticsStats ? analyticsStats.criticalRiskCount : 0} Nodes
+                        </p>
+                        <span className="text-[10px] text-rose-300 mt-2 block">Requires proactive intervention</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 4 Summary Stat Cards with 3D Tilt */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[
-                      { label: 'Total Workforce Nodes', value: `${employees.length} Active`, icon: 'Users', color: 'text-brand-400', sub: '+14% YoY growth' },
-                      { label: 'Critical Flight Risk', value: '2 Personnel', icon: 'AlertTriangle', color: 'text-rose-400', sub: 'Action required' },
-                      { label: 'Retention Confidence', value: '88%', icon: 'ShieldCheck', color: 'text-cyan-400', sub: 'Calculated via Spring AI' },
-                      { label: 'Monthly Payroll Run', value: '$135,000', icon: 'DollarSign', color: 'text-emerald-400', sub: 'Automated batch' },
-                    ].map((card, i) => (
-                      <div key={i} {...tiltProps} className="card-tilt glass-panel-3d p-5 rounded-2xl cursor-default">
-                        <div className="card-tilt-content flex flex-col justify-between h-full">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-slate-400">{card.label}</span>
-                            <Icon name={card.icon} size={18} className={card.color} />
-                          </div>
-                          <p className={`text-2xl font-black mt-2 ${card.color}`}>{card.value}</p>
-                          <span className="text-[10px] text-slate-400 mt-2">{card.sub}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* WHAT-IF SIMULATOR & RAG COPILOT (3D Glass Panels) */}
+                  {/* DYNAMIC SVG CHARTS SECTION */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    
-                    {/* LEFT (7 cols): WHAT-IF SIMULATOR */}
-                    <div {...tiltProps} className="card-tilt lg:col-span-7 glass-panel-3d rounded-3xl p-6 lg:p-7 border border-slate-800">
+                    {/* DONUT CHART: DEPARTMENTAL BREAKDOWN */}
+                    <div {...tiltProps} className="card-tilt lg:col-span-6 glass-panel-3d p-6 rounded-3xl border border-slate-800">
                       <div className="card-tilt-content space-y-4">
-                        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                           <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-base font-bold text-white">What-If Retention Simulator</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">Live Recalculation</span>
-                            </div>
-                            <p className="text-xs text-slate-400 mt-0.5">Test intervention levers to neutralize flight risks in real time.</p>
+                            <h3 className="text-sm font-bold text-white">Department Headcount & Spend</h3>
+                            <p className="text-[11px] text-slate-400">Aggregated directly from database queries</p>
                           </div>
-                          <Icon name="Sliders" size={20} className="text-brand-400" />
+                          <Icon name="Database" size={16} className="text-brand-400" />
+                        </div>
+                        <DepartmentDonutChart data={analyticsStats?.departmentDistribution || []} />
+                      </div>
+                    </div>
+
+                    {/* WHAT-IF SIMULATOR */}
+                    <div {...tiltProps} className="card-tilt lg:col-span-6 glass-panel-3d p-6 rounded-3xl border border-slate-800">
+                      <div className="card-tilt-content space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                          <div>
+                            <h3 className="text-sm font-bold text-white">What-If Retention Simulator</h3>
+                            <p className="text-[11px] text-slate-400">Simulate compensation adjustments and modality shifts</p>
+                          </div>
+                          <Icon name="Sliders" size={16} className="text-cyan-400" />
                         </div>
 
                         <div>
-                          <label className="text-xs font-semibold text-slate-300 block mb-1.5">Target Employee</label>
+                          <label className="text-xs font-semibold text-slate-300 block mb-1">Target Employee</label>
                           <select
                             value={simEmpId}
                             onChange={(e) => setSimEmpId(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none"
                           >
                             {employees.map((e) => (
                               <option key={e.id} value={e.id}>
-                                {e.firstName} {e.lastName} – {e.designation} (Risk: {e.flightRisk.score}%)
+                                {e.isDemo ? '🧪 [Demo] ' : '🟢 [Live DB] '} {e.firstName} {e.lastName} – {e.designation} (Risk: {e.flightRisk.score}%)
                               </option>
                             ))}
                           </select>
                         </div>
 
-                        {activeSimEmp && simResult && (
-                          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                        {activeSimEmp && (
+                          <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
                             <div>
-                              <p className="text-xs text-slate-400">Baseline Flight Risk</p>
-                              <p className={`text-2xl font-black mt-1 ${activeSimEmp.flightRisk.score > 60 ? 'text-rose-400' : 'text-amber-400'}`}>
-                                {activeSimEmp.flightRisk.score}%
+                              <span className="text-slate-400">Baseline Risk:</span>
+                              <p className={`font-mono font-bold text-lg ${activeSimEmp.flightRisk.score > 60 ? 'text-rose-400' : 'text-amber-400'}`}>
+                                {activeSimEmp.flightRisk.score}% ({activeSimEmp.flightRisk.level})
                               </p>
-                              <span className="text-[10px] uppercase font-bold text-slate-500">{activeSimEmp.flightRisk.level} RISK</span>
                             </div>
-                            <Icon name="ChevronRight" size={22} className="text-slate-600" />
+                            <Icon name="ChevronRight" size={20} className="text-slate-600" />
                             <div className="text-right">
-                              <p className="text-xs text-slate-400">Simulated Outcome</p>
-                              <p className="text-2xl font-black mt-1 text-emerald-400">{simResult.newScore}%</p>
-                              <span className="text-[10px] uppercase font-bold text-emerald-400">
-                                ↓ {simResult.reduction}% Reduction
-                              </span>
+                              <span className="text-slate-400">Simulated Outcome:</span>
+                              <p className="font-mono font-bold text-lg text-emerald-400">
+                                {simulatedOutcome.simulated}% (↓ {simulatedOutcome.drop}%)
+                              </p>
                             </div>
                           </div>
                         )}
 
                         <div>
-                          <div className="flex justify-between text-xs font-medium mb-1">
-                            <span className="text-slate-300">Merit Compensation Hike</span>
-                            <span className="text-brand-400 font-mono font-bold">+{simHike}%</span>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-slate-300">Merit Hike</span>
+                            <span className="font-mono text-brand-400 font-bold">+{simHike}%</span>
                           </div>
                           <input
                             type="range"
@@ -1314,147 +1004,48 @@
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-xs font-semibold text-slate-300 block mb-1.5">Workplace Modality</label>
-                            <select
-                              value={simMode}
-                              onChange={(e) => setSimMode(e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                            >
-                              <option value="IN_OFFICE">In-Office</option>
-                              <option value="HYBRID">Hybrid (2 days)</option>
-                              <option value="REMOTE">Full Remote</option>
-                            </select>
-                          </div>
-                          <div className="flex flex-col justify-end space-y-2">
-                            <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={simPromotion}
-                                onChange={(e) => setSimPromotion(e.target.checked)}
-                                className="accent-brand-500 rounded"
-                              />
-                              <span>Fast-Track Promotion</span>
-                            </label>
-                            <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={simMentorship}
-                                onChange={(e) => setSimMentorship(e.target.checked)}
-                                className="accent-brand-500 rounded"
-                              />
-                              <span>Assign Principal Mentor</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={handleApplyRetentionPlan}
-                          className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-cyan-500 text-white font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-glow-brand transition mt-2"
-                        >
-                          Deploy Retention Package to People Ops
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* RIGHT (5 cols): RAG POLICY COPILOT */}
-                    <div {...tiltProps} className="card-tilt lg:col-span-5 glass-panel-3d rounded-3xl p-6 flex flex-col justify-between border border-slate-800">
-                      <div className="card-tilt-content space-y-4">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                          <div className="flex items-center space-x-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-brand-500 flex items-center justify-center">
-                              <Icon name="Brain" size={16} className="text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white">Nexus Policy Copilot</h3>
-                              <p className="text-[11px] text-emerald-400 font-mono">pgvector RAG Active</p>
-                            </div>
-                          </div>
-                          <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">Spring AI</span>
-                        </div>
-
-                        <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                          {chatMessages.map((msg) => (
-                            <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                              <div className={`max-w-[90%] p-3.5 rounded-2xl text-xs ${
-                                msg.sender === 'user' ? 'bg-brand-600 text-white rounded-tr-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'
-                              }`}>
-                                <p className="whitespace-pre-line">{msg.text}</p>
-                                {msg.citations && msg.citations.length > 0 && (
-                                  <div className="mt-2 pt-2 border-t border-slate-800/80 flex flex-wrap gap-1">
-                                    {msg.citations.map((c, i) => (
-                                      <span key={i} className="text-[9px] bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded font-mono">
-                                        📄 {c}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-[9px] text-slate-500 mt-1">{msg.time}</span>
-                            </div>
-                          ))}
-                          {isAiThinking && (
-                            <div className="flex items-center space-x-2 p-3 bg-slate-900/60 rounded-2xl w-fit">
-                              <div className="w-2 h-2 rounded-full bg-brand-400 animate-ping"></div>
-                              <span className="text-xs text-slate-400">Consulting enterprise vector handbook...</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="pt-2 border-t border-slate-800">
-                          <div className="flex flex-wrap gap-1 mb-2.5">
-                            {['Parental Leave (16 wks)', 'Equity Cliff & Vesting', 'Remote Stipend ($1.5k)'].map((chip, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => handleSendChat(chip)}
-                                className="text-[10px] bg-slate-800/90 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700"
-                              >
-                                {chip}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="flex items-center space-x-2">
+                          <select
+                            value={simMode}
+                            onChange={(e) => setSimMode(e.target.value)}
+                            className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                          >
+                            <option value="IN_OFFICE">In-Office</option>
+                            <option value="HYBRID">Hybrid (2 days)</option>
+                            <option value="REMOTE">Full Remote</option>
+                          </select>
+                          <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
                             <input
-                              type="text"
-                              placeholder="Ask policy questions or benefits..."
-                              value={chatInput}
-                              onChange={(e) => setChatInput(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                              className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-brand-500"
+                              type="checkbox"
+                              checked={simPromotion}
+                              onChange={(e) => setSimPromotion(e.target.checked)}
+                              className="accent-brand-500 rounded"
                             />
-                            <button
-                              onClick={() => handleSendChat()}
-                              className="p-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl shadow-glow-brand"
-                            >
-                              <Icon name="Send" size={14} />
-                            </button>
-                          </div>
+                            <span>Promotion Track</span>
+                          </label>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* TALENT ATTRITION RADAR */}
+                  {/* FLIGHT RISK RADAR WITH PROVENANCE BADGES */}
                   <div {...tiltProps} className="card-tilt glass-panel-3d rounded-3xl p-6 border border-slate-800">
-                    <div className="card-tilt-content">
-                      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div className="card-tilt-content space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
                         <div>
                           <h3 className="text-base font-bold text-white">Workforce Attrition Radar</h3>
-                          <p className="text-xs text-slate-400 mt-0.5">Real-time risk scoring sorted by urgency.</p>
+                          <p className="text-xs text-slate-400">Real-time risk scoring sorted by probability</p>
                         </div>
-                        <button
-                          onClick={() => setIs3DModalOpen(true)}
-                          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold"
-                        >
-                          <Icon name="Globe3D" size={14} />
-                          <span>View in 3D Constellation</span>
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-slate-400">Showing:</span>
+                          <span className="text-xs font-mono font-bold text-emerald-400">{employees.length} Records</span>
+                        </div>
                       </div>
 
-                      <div className="overflow-x-auto mt-4">
+                      <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                           <thead>
                             <tr className="text-slate-400 border-b border-slate-800 font-semibold">
+                              <th className="py-3 px-4">Provenance</th>
                               <th className="py-3 px-4">Employee</th>
                               <th className="py-3 px-4">Department</th>
                               <th className="py-3 px-4">Flight Probability</th>
@@ -1463,36 +1054,56 @@
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-800/60">
-                            {employees.slice().sort((a, b) => b.flightRisk.score - a.flightRisk.score).map((emp) => (
+                            {employees.map((emp) => (
                               <tr key={emp.id} className="hover:bg-slate-800/40 transition">
-                                <td className="py-3 px-4">
-                                  <div className="flex items-center space-x-3">
+                                <td className="py-3.5 px-4">
+                                  {emp.isDemo ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                                      🧪 DEMO
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                                      🟢 LIVE DB
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-4 font-bold text-slate-200">
+                                  <div className="flex items-center space-x-2.5">
                                     <img src={emp.avatar} className="w-8 h-8 rounded-full object-cover" />
                                     <div>
-                                      <p className="font-bold text-slate-200">{emp.firstName} {emp.lastName}</p>
-                                      <p className="text-[10px] text-slate-400">{emp.designation}</p>
+                                      <p>{emp.firstName} {emp.lastName}</p>
+                                      <p className="text-[10px] text-slate-400 font-mono">{emp.employeeCode}</p>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-3 px-4 text-slate-300">{emp.department}</td>
-                                <td className="py-3 px-4 font-mono font-bold text-slate-200">{emp.flightRisk.score}%</td>
-                                <td className="py-3 px-4">
+                                <td className="py-3.5 px-4 text-slate-300">{emp.department}</td>
+                                <td className="py-3.5 px-4 font-mono font-bold text-slate-200">{emp.flightRisk.score}%</td>
+                                <td className="py-3.5 px-4">
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                     emp.flightRisk.score > 60 ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'
                                   }`}>
                                     {emp.flightRisk.level}
                                   </span>
                                 </td>
-                                <td className="py-3 px-4 text-right">
+                                <td className="py-3.5 px-4 text-right">
                                   <button
                                     onClick={() => {
                                       setSimEmpId(emp.id);
                                       showToast(`Loaded ${emp.firstName} into Simulator.`);
                                     }}
-                                    className="px-3 py-1 rounded-lg bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 border border-brand-500/40 text-xs font-semibold"
+                                    className="px-2.5 py-1 rounded-lg bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 text-xs font-semibold mr-2"
                                   >
                                     Simulate
                                   </button>
+                                  {!emp.isDemo && (
+                                    <button
+                                      onClick={() => handleDeleteEmployee(emp.id, `${emp.firstName} ${emp.lastName}`)}
+                                      className="p-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 transition"
+                                      title="Delete Real Employee from Database"
+                                    >
+                                      <Icon name="Trash2" size={13} />
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             ))}
@@ -1504,51 +1115,118 @@
                 </div>
               )}
 
-              {/* TAB 2: DIRECTORY */}
+              {/* TAB 2: DIRECTORY & DATABASE */}
               {activeTab === 'employees' && (
                 <div className="space-y-6 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <h2 className="text-2xl font-black text-white">Workforce Directory & 3D Spatial Nodes</h2>
-                      <p className="text-slate-400 text-xs mt-1">Touch/drag cards to feel 3D perspective feedback.</p>
+                      <h2 className="text-2xl font-black text-white">Workforce Directory & Database</h2>
+                      <p className="text-slate-400 text-xs mt-1">Real-time database records and benchmark datasets with full search & filtering.</p>
                     </div>
                     <button
-                      onClick={() => setIs3DModalOpen(true)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-brand-600 text-white font-bold text-xs shadow-glow-cyan"
+                      onClick={() => setIsAddEmployeeOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-glow-emerald"
                     >
-                      <Icon name="Globe3D" size={16} />
-                      <span>Explore 3D Constellation</span>
+                      + Onboard Real Employee
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {employees.map((emp) => (
-                      <div
-                        key={emp.id}
-                        {...tiltProps}
-                        onClick={() => setSelectedEmployee(emp)}
-                        className="card-tilt glass-panel-3d p-5 rounded-2xl cursor-pointer"
+                  {/* SEARCH, DEPARTMENT & SORT BAR */}
+                  <div className="glass-panel-3d p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center space-x-3 flex-1 min-w-[240px]">
+                      <Icon name="Search" size={16} className="text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search real or demo employees by name, title, code, skills..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <select
+                        value={deptFilter}
+                        onChange={(e) => setDeptFilter(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-300 outline-none"
                       >
-                        <div className="card-tilt-content flex flex-col justify-between h-full">
-                          <div className="flex items-start justify-between">
-                            <img src={emp.avatar} className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-700" />
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300">
-                              Risk: {emp.flightRisk.score}%
-                            </span>
-                          </div>
-                          <div className="mt-3">
-                            <h3 className="font-bold text-sm text-white">{emp.firstName} {emp.lastName}</h3>
-                            <p className="text-xs text-brand-300 font-medium">{emp.designation}</p>
-                            <p className="text-[11px] text-slate-400 mt-0.5">{emp.department}</p>
-                          </div>
-                          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                            <span>{emp.location.split(',')[0]}</span>
-                            <span className="font-mono text-slate-300 font-semibold">${(emp.salary.baseAnnual / 1000).toFixed(0)}k/yr</span>
+                        <option value="ALL">All Departments</option>
+                        <option value="Core Engineering">Core Engineering</option>
+                        <option value="Artificial Intelligence & Data">AI & Data</option>
+                        <option value="Product & UX">Product & UX</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Executive Leadership">Executive</option>
+                        <option value="Enterprise Sales">Sales</option>
+                      </select>
+
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-300 outline-none"
+                      >
+                        <option value="default">Default Sort (Real First)</option>
+                        <option value="name_asc">Name (A → Z)</option>
+                        <option value="salary_desc">Salary (High → Low)</option>
+                        <option value="risk_desc">Flight Risk (High → Low)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* CARDS GRID */}
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                      {[1, 2, 3, 4].map((n) => (
+                        <div key={n} className="h-56 rounded-2xl skeleton border border-slate-800"></div>
+                      ))}
+                    </div>
+                  ) : employees.length === 0 ? (
+                    <div className="text-center py-16 glass-panel-3d rounded-3xl p-8 border border-slate-800">
+                      <Icon name="Search" size={32} className="mx-auto text-slate-600 mb-3" />
+                      <h3 className="text-base font-bold text-white">No employees match current criteria</h3>
+                      <p className="text-xs text-slate-400 mt-1">Try clearing filters or search query.</p>
+                      <button
+                        onClick={() => { setSearchQuery(''); setDeptFilter('ALL'); setDataSourceFilter('all'); }}
+                        className="mt-4 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200"
+                      >
+                        Reset All Filters
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                      {employees.map((emp) => (
+                        <div
+                          key={emp.id}
+                          {...tiltProps}
+                          onClick={() => setSelectedEmployee(emp)}
+                          className="card-tilt glass-panel-3d p-5 rounded-2xl cursor-pointer flex flex-col justify-between"
+                        >
+                          <div className="card-tilt-content">
+                            <div className="flex items-start justify-between">
+                              <img src={emp.avatar} className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-700" />
+                              {emp.isDemo ? (
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                                  🧪 DEMO
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                                  🟢 LIVE DB
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-3">
+                              <h3 className="font-bold text-sm text-white">{emp.firstName} {emp.lastName}</h3>
+                              <p className="text-xs text-brand-300 font-medium">{emp.designation}</p>
+                              <p className="text-[11px] text-slate-400 mt-0.5">{emp.department}</p>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                              <span>{emp.location.split(',')[0]}</span>
+                              <span className="font-mono text-slate-200 font-bold">${(emp.salary.baseAnnual / 1000).toFixed(0)}k/yr</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1558,7 +1236,7 @@
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-black text-white">Payroll & Digital Payslips</h2>
-                      <p className="text-slate-400 text-xs mt-1">Batch execution with printable digital pay stubs.</p>
+                      <p className="text-slate-400 text-xs mt-1">Calculated directly from salary structures in database.</p>
                     </div>
                   </div>
                   <div {...tiltProps} className="card-tilt glass-panel-3d rounded-3xl p-6 border border-slate-800">
@@ -1566,9 +1244,10 @@
                       <table className="w-full text-left text-xs">
                         <thead>
                           <tr className="text-slate-400 border-b border-slate-800 font-semibold">
+                            <th className="py-3 px-4">Provenance</th>
                             <th className="py-3 px-4">Employee</th>
-                            <th className="py-3 px-4">Gross Earnings</th>
-                            <th className="py-3 px-4">Net Payout</th>
+                            <th className="py-3 px-4">Monthly Gross</th>
+                            <th className="py-3 px-4">Net Take-Home</th>
                             <th className="py-3 px-4 text-right">Digital Stub</th>
                           </tr>
                         </thead>
@@ -1578,6 +1257,13 @@
                             const net = Math.round(gross * 0.72);
                             return (
                               <tr key={emp.id} className="hover:bg-slate-800/40 transition">
+                                <td className="py-3 px-4">
+                                  {emp.isDemo ? (
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">🧪 Demo</span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold font-mono">🟢 Live DB</span>
+                                  )}
+                                </td>
                                 <td className="py-3.5 px-4 font-bold text-slate-200">
                                   {emp.firstName} {emp.lastName}
                                 </td>
@@ -1601,12 +1287,12 @@
                 </div>
               )}
 
-              {/* TAB 4: PERFORMANCE */}
+              {/* TAB 4: PERFORMANCE 9-BOX */}
               {activeTab === 'performance' && (
                 <div className="space-y-6 animate-in fade-in duration-300">
                   <div>
-                    <h2 className="text-2xl font-black text-white">Performance & 9-Box Calibration Matrix</h2>
-                    <p className="text-slate-400 text-xs mt-1">Calibrating leadership potential vs delivery performance.</p>
+                    <h2 className="text-2xl font-black text-white">Performance 9-Box Calibration Matrix</h2>
+                    <p className="text-slate-400 text-xs mt-1">Calibrating potential vs delivery across all active database personnel.</p>
                   </div>
                   <div {...tiltProps} className="card-tilt glass-panel-3d p-6 rounded-3xl border border-slate-800">
                     <div className="card-tilt-content grid grid-cols-3 gap-3">
@@ -1616,15 +1302,15 @@
                       </div>
                       <div className="p-4 rounded-2xl bg-brand-950/40 border border-brand-800/40 min-h-[110px]">
                         <span className="text-[10px] font-bold text-brand-300 uppercase">Future Leader</span>
-                        <div className="mt-2 text-xs text-slate-300">David Kim (Lead UX)</div>
+                        <div className="mt-2 text-xs text-slate-300">David Kim, Sarah Jenkins (Live DB)</div>
                       </div>
                       <div className="p-4 rounded-2xl bg-emerald-950/40 border-2 border-emerald-500/50 shadow-glow-emerald min-h-[110px]">
                         <span className="text-[10px] font-bold text-emerald-300 uppercase">Star / Strategic Asset</span>
-                        <div className="mt-2 text-xs font-bold text-white">Elena Rostova, Priya Sharma</div>
+                        <div className="mt-2 text-xs font-bold text-white">Dr. Aaron Vance (Live DB), Elena Rostova</div>
                       </div>
                       <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 min-h-[110px]">
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Dilemma</span>
-                        <div className="mt-2 text-xs text-slate-500">Targeted coaching</div>
+                        <div className="mt-2 text-xs text-slate-500">Requires targeted coaching</div>
                       </div>
                       <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 min-h-[110px]">
                         <span className="text-[10px] font-bold text-slate-300 uppercase">Core Player</span>
@@ -1641,7 +1327,149 @@
             </main>
           </div>
 
-          {/* MODAL: DIGITAL PAYSLIP */}
+          {/* MODAL 1: ONBOARD REAL EMPLOYEE (SAVES TO LIVE SQLITE DATABASE) */}
+          {isAddEmployeeOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-[#111827] border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95">
+                <button
+                  onClick={() => setIsAddEmployeeOpen(false)}
+                  className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800 text-slate-300"
+                >
+                  <Icon name="X" size={18} />
+                </button>
+
+                <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-800">
+                  <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+                  <h3 className="text-base font-bold text-white">Onboard Real Employee via REST API</h3>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">This record will be inserted directly into the SQLite database (`nexushr.db`).</p>
+
+                {addFormErrors.length > 0 && (
+                  <div className="mt-3 p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs space-y-1">
+                    {addFormErrors.map((err, i) => (
+                      <div key={i} className="flex items-center space-x-1.5">
+                        <span>•</span>
+                        <span>{err}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateRealEmployee} className="mt-4 space-y-3.5 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">First Name *</label>
+                      <input type="text" name="firstName" placeholder="e.g. Jordan" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500" required />
+                    </div>
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">Last Name *</label>
+                      <input type="text" name="lastName" placeholder="e.g. Hayes" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500" required />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-semibold block mb-1">Corporate Email *</label>
+                    <input type="email" name="email" placeholder="jordan.hayes@nexushr.enterprise" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-emerald-500" required />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">Department</label>
+                      <select name="department" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                        <option value="Core Engineering">Core Engineering</option>
+                        <option value="Artificial Intelligence & Data">AI & Data</option>
+                        <option value="Product & UX">Product & UX</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Enterprise Sales">Sales</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">Designation</label>
+                      <input type="text" name="designation" placeholder="e.g. Lead SRE Engineer" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none" required />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">Annual Base Salary ($) *</label>
+                      <input type="number" name="salary" defaultValue="155000" min="30000" step="1000" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" required />
+                    </div>
+                    <div>
+                      <label className="text-slate-300 font-semibold block mb-1">Work Modality</label>
+                      <select name="workMode" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                        <option value="HYBRID">Hybrid</option>
+                        <option value="REMOTE">Remote</option>
+                        <option value="IN_OFFICE">In-Office</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-semibold block mb-1">Skills (comma-separated)</label>
+                    <input type="text" name="skills" defaultValue="Java 21, Kubernetes, Prometheus, Docker" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider shadow-glow-emerald transition mt-2"
+                  >
+                    Commit & Save Real Employee to Database
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 2: API HEALTH & TELEMETRY */}
+          {isApiHealthModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-[#111827] border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+                <button
+                  onClick={() => setIsApiHealthModalOpen(false)}
+                  className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800 text-slate-300"
+                >
+                  <Icon name="X" size={18} />
+                </button>
+
+                <div className="flex items-center space-x-2 pb-3 border-b border-slate-800">
+                  <Icon name="Database" size={18} className="text-brand-400" />
+                  <h3 className="text-sm font-bold text-white">Live Backend & Database Telemetry</h3>
+                </div>
+
+                <div className="py-4 space-y-3 text-xs font-mono">
+                  <div className="flex justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-slate-400">Database Engine:</span>
+                    <span className="text-emerald-400 font-bold">{apiHealth?.database?.engine || 'SQLite 3'}</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-slate-400">Persistence File:</span>
+                    <span className="text-slate-200">nexushr.db</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-slate-400">Real Verified Records:</span>
+                    <span className="text-emerald-400 font-bold">{meta.realVerifiedCount}</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-slate-400">Demo Benchmark Records:</span>
+                    <span className="text-slate-300">{meta.demoCount}</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="text-slate-400">API Status:</span>
+                    <span className="text-emerald-400 font-bold">{apiHealth?.status || 'UP'}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => { loadDataFromApi(); setIsApiHealthModalOpen(false); }}
+                  className="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs"
+                >
+                  Refresh Live Connection
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL 3: DIGITAL PAYSLIP */}
           {payslipEmployee && (
             <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="bg-[#111827] border border-slate-700 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative" id="printable-payslip">
@@ -1652,8 +1480,17 @@
                   <Icon name="X" size={18} />
                 </button>
                 <div className="border-b border-slate-800 pb-4">
-                  <h2 className="text-xl font-black text-white">NexusHR Enterprise Technologies</h2>
-                  <p className="text-xs text-slate-400">100 Enterprise Way, San Francisco, CA</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-black text-white">NexusHR Enterprise Technologies</h2>
+                      <p className="text-xs text-slate-400">100 Enterprise Way, San Francisco, CA</p>
+                    </div>
+                    {payslipEmployee.isDemo ? (
+                      <span className="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full font-bold">🧪 Demo Stub</span>
+                    ) : (
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full font-bold font-mono">🟢 Live Verified</span>
+                    )}
+                  </div>
                 </div>
                 <div className="py-4 space-y-2 text-xs">
                   <p className="font-bold text-white text-sm">{payslipEmployee.firstName} {payslipEmployee.lastName}</p>
@@ -1684,7 +1521,7 @@
             </div>
           )}
 
-          {/* MODAL: EMPLOYEE PROFILE */}
+          {/* MODAL 4: EMPLOYEE PROFILE */}
           {selectedEmployee && (
             <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="bg-[#111827] border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95">
@@ -1697,7 +1534,14 @@
                 <div className="flex items-center space-x-4 pb-4 border-b border-slate-800">
                   <img src={selectedEmployee.avatar} className="w-16 h-16 rounded-2xl object-cover border-2 border-brand-500" />
                   <div>
-                    <h3 className="text-lg font-bold text-white">{selectedEmployee.firstName} {selectedEmployee.lastName}</h3>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-lg font-bold text-white">{selectedEmployee.firstName} {selectedEmployee.lastName}</h3>
+                      {selectedEmployee.isDemo ? (
+                        <span className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold">🧪 Demo</span>
+                      ) : (
+                        <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold font-mono">🟢 Live DB</span>
+                      )}
+                    </div>
                     <p className="text-xs text-brand-300">{selectedEmployee.designation}</p>
                     <span className={`text-[10px] font-mono font-bold ${selectedEmployee.flightRisk.score > 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
                       Flight Risk: {selectedEmployee.flightRisk.score}% ({selectedEmployee.flightRisk.level})
@@ -1710,12 +1554,12 @@
                     <span className="text-white font-medium">{selectedEmployee.department}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Reports To</span>
-                    <span className="text-white font-medium">{selectedEmployee.managerName}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span className="text-slate-400">Work Modality</span>
                     <span className="text-white font-medium">{selectedEmployee.workMode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Annual Base</span>
+                    <span className="text-white font-mono font-bold">${selectedEmployee.salary.baseAnnual.toLocaleString()}</span>
                   </div>
                   <div className="pt-2">
                     <span className="text-slate-400 block mb-1.5">Core Competencies</span>
@@ -1736,7 +1580,6 @@
       );
     }
 
-    // Mount Application
     const rootElement = document.getElementById('root');
     const root = ReactDOM.createRoot(rootElement);
     root.render(<App />);

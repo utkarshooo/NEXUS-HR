@@ -58,7 +58,7 @@ export class NexusHRService {
   static getConfig(): AppConfig {
     return this.load<AppConfig>(STORAGE_KEYS.CONFIG, {
       backendMode: 'SPRING_BOOT',
-      apiUrl: 'http://localhost:8080/api/v1',
+     apiUrl: 'https://nexus-hr-yupd.onrender.com/api/v1',
       theme: 'dark',
       autoAiRefresh: true,
     });

@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: nexushr
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/nexushr}
+    username: ${DB_USER:nexus}
+    password: ${DB_PASSWORD:nexus_dev}
+  jpa:
+    hibernate:
+      ddl-auto: validate        # Flyway owns the schema
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    # Base64-encoded, 256-bit or longer. The default below is for LOCAL DEV ONLY.
+    secret: ${JWT_SECRET:bmV4dXNoci1kZXYtb25seS1zZWNyZXQta2V5LWNoYW5nZS1tZS1pbi1wcm9kLTAxMjM0NTY3ODk=}
+    access-ttl-ms: 900000       # 15 minutes
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
